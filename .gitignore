@@ -1,0 +1,69 @@
+## Folders ############################
+
+/dist
+
+## - Amazon - Elastic Beanstalk
+
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+## - JetBrains
+.idea/
+
+## - Visual Studio - Probably Ignore
+#_ReSharper*/
+#ipch/
+obj/
+
+## - Visual Studio - .NET
+#[Bb]uild/
+#[Bb]in
+#[Dd]ebug*/
+#[Rr]elease*/
+#[Tt]est[Rr]esult*
+#packages/
+
+## - Visual Studio  - Node.js
+bower_components/
+node_modules/
+
+## Files ###############################
+
+## - Metadata
+*.DS_Store
+[Tt]humbs.db
+
+## - Subversion
+.svn
+
+## - Office (Temp Files)
+~$*
+
+## - Visual Studio - Common
+*_i.c
+*_p.c
+*.aps
+*.bak
+*.[Cc]ache
+*.dbmdl
+*.ilk
+*.lib
+*.log
+*.ncb
+*.[Oo]bj
+*.opensdf
+*.pch
+*.resharper
+*.sbr
+*.sdf
+*.suo
+*.tlb
+*.tlh
+*.unsuccessfulbuild
+*.user
+*.vspscc
+*.vssscc
+
+## - Visual Studio - Node.js
+*.ntvs_analysis.dat
