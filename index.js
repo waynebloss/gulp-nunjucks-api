@@ -5,48 +5,78 @@ var lodash = require('lodash');
 var nunjucks = require('nunjucks');
 var through = require('through2');
 
-var DEFAULT_FILE_EXTENSION = '.html';
+var DEFAULT_EXTENSION = '.html';
 
 function configure(options) {
   var config = {
     context: {},
-    extension: DEFAULT_FILE_EXTENSION,
+    extension: DEFAULT_EXTENSION,
     verbose: false
   };
-  var data, env, g, name;
-
-  options = options || {};
-  options = lodash.cloneDeep(options);
+  if (options === undefined || options === null)
+    options = {};
+  else
+    options = lodash.cloneDeep(options);
   
-  if (options.verbose === true)
-    config.verbose = true;
-  if (options.extension) {
+  configureVerbose(config, options);
+  configureGlobals(config, options);
+  configureContext(config, options);
+  configureFiles(config, options);
+  configureNunjucks(config);
+
+  return config;
+}
+
+function configureContext(config, options) {
+  var g = config.g;
+  lodash.assign(config.context, g.data);
+  lodash.assign(config.context, g.functions);
+}
+
+function configureFiles(config, options) {
+  if (options.extension)
     config.extension = options.extension;
-    delete options.extension;
-  }
-  if (options.src) {
+  if (options.src)
     config.src = options.src;
-    delete options.src;
-  }
-  if (options.data) {
-    lodash.assign(config.context, options.data);
-    delete options.data;
-  }
-  if (options.globals) {
-    g = options.globals;
-    delete options.globals;
-    if (g !== undefined)
-      lodash.assign(config.context, g.functions);
-  }
+  delete options.extension;
+  delete options.src;
+}
+
+function configureGlobals(config, options) {
+  var g = {};
+  var og = options.globals || {};
+  g.data = lodash.merge({}, og.data, options.data);
+  g.filters = lodash.merge({}, og.filters, options.filters);
+  g.functions = lodash.merge({}, og.functions, options.functions);
+  config.g = g;
+  delete options.data;
+  delete options.filters;
+  delete options.functions;
+  delete options.globals;
+}
+
+function configureNunjucks(config, options) {
+  var env;
+  var filters = config.g.filters;
+  
+  // At this point, options should only contain fields which are relevant to 
+  // the nunjucks.configure api.
+  
+  // Disable watch by default for the gulp system, since gulp will not exit 
+  // while files are being watched.
   if (options.watch === undefined)
     options.watch = false;
-  env = config.env = nunjucks.configure(config.src, options);
+
+  config.env = nunjucks.configure(config.src, options);
   
-  if (g !== undefined && g.filters !== undefined)
-    for (name in g.filters)
-      env.addFilter(name, g.filters[name]);
-  
-  return config;
+  env = config.env;
+  for (name in filters)
+    env.addFilter(name, filters[name]);
+}
+
+function configureVerbose(config, options) {
+  config.verbose = options.verbose || false;
+  delete options.verbose;
 }
 
 function plugin(options) {
