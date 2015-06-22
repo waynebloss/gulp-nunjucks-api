@@ -58,7 +58,7 @@ gulp.task('default', function () {
 
 ### gulp-nunjucks-api(options)
 
-Renders source templates using the given options to configure Nunjucks API 
+Renders source templates using the given options to configure the Nunjucks API 
 with custom data, extensions, filters and contextual functions.
 
 Same options as 
