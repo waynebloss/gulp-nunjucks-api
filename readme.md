@@ -64,9 +64,11 @@ Same options as
 - **watch** _(default: false)_ reload templates when they are changed.
 - **express** an express app that nunjucks should install to.
 - **autoescape** _(default: false)_ controls if output with dangerous 
-characters are escaped automatically.
+characters are escaped automatically. See 
+[Autoescaping](http://mozilla.github.io/nunjucks/api.html#autoescaping).
 - **tags** _(default: see nunjucks syntax)_ defines the syntax for nunjucks 
-tags.
+tags. See 
+[Customizing Syntax](http://mozilla.github.io/nunjucks/api.html#customizing-syntax).
 
 With the following additional options:
 
