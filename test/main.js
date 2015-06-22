@@ -23,7 +23,6 @@ function getExpected(filepath) {
   return fs.readFileSync('test/expected/' + filepath, 'utf8');
 }
 
-
 describe('gulp-nunjucks-api', function () {
   
   it('should render a html file', function (done) {
