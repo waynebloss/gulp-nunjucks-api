@@ -1,11 +1,15 @@
 'use strict';
 
+var PLUGIN_NAME = 'gulp-nunjucks-api';
+
+var glob = require('glob');
 var gutil = require('gulp-util');
 var lodash = require('lodash');
 var nunjucks = require('nunjucks');
+var path = require('path');
 var through = require('through2');
 
-var PLUGIN_NAME = 'gulp-nunjucks-api';
+// #region Configuration
 
 function configure(options) {
   var config = {
@@ -20,10 +24,11 @@ function configure(options) {
   
   configureVerbosity(config, options);
   configureGlobals(config, options);
+  configureLocals(config, options);
   configureContext(config, options);
   configureFiles(config, options);
   configureNunjucks(config, options);
-
+  
   return config;
 }
 
@@ -57,6 +62,14 @@ function configureGlobals(config, options) {
   delete options.globals;
 }
 
+function configureLocals(config, options) {
+  if (options.locals === true)
+    config.locals = '<filename>.(js|json)';
+  else
+    config.locals = options.locals;
+  delete options.locals;
+}
+
 function configureNunjucks(config, options) {
   var env;
   var g = config.g;
@@ -70,7 +83,7 @@ function configureNunjucks(config, options) {
   // while files are being watched.
   if (options.watch === undefined)
     options.watch = false;
-
+  
   config.env = nunjucks.configure(config.src, options);
   
   env = config.env;
@@ -86,6 +99,10 @@ function configureVerbosity(config, options) {
   delete options.verbose;
 }
 
+// #endregion
+
+// #region Helpers
+
 function createError(message, opt) {
   return new gutil.PluginError(PLUGIN_NAME, message, opt);
 }
@@ -94,26 +111,50 @@ function log(message) {
   return gutil.log.apply(gutil, arguments);
 }
 
+// #endregion
+
+function assignLocals(context, locals, file) {
+  var searchpath = path.dirname(file.path);
+  var pfile = path.parse(file.path);
+  var locals = String.prototype.replace.apply(locals, [
+    '<filename>', pfile.base]);
+  locals = String.prototype.replace.apply(locals, [
+    '<filename_noext>', pfile.name]);
+  var pattern = path.join(searchpath, locals);
+  var options = {
+    cwd: searchpath
+  };
+  var found = glob.sync(pattern, options);
+  var i, fullpath, data;
+  for (i = 0; i < found.length; i++) {
+    fullpath = path.join(searchpath, foundpath);
+    data = require(fullpath);
+    lodash.assign(context, data);
+  }
+}
+
 function plugin(options) {
   var config = configure(options);
-
+  
   function render(file, enc, cb) {
     var context = lodash.cloneDeep(config.context);
     var env = config.env;
     var _this = this;
-
+    
     if (file.isNull()) {
       this.push(file);
       return cb();
     }
-    if (file.data)
-      lodash.assign(context, file.data);
     if (file.isStream()) {
       this.emit('error', createError('Streaming not supported'));
       return cb();
     }
+    if (file.data)
+      lodash.assign(context, file.data);
+    if (config.locals)
+      assignLocals(context, config.locals, file);
     config.vlog('Rendering nunjucks file.path:', file.path);
-    env.render(file.path, context, function(err, result) {
+    env.render(file.path, context, function (err, result) {
       if (err) {
         _this.emit('error', createError(err));
       }

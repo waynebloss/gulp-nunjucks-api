@@ -91,8 +91,16 @@ Nunjucks render context.
 - **globals** _(default: undefined)_ Object. A single object which provides 
 `data`, `extensions`, `filters` and `functions` objects instead of setting 
 each of these options separately. The separate global options are merged into 
+- **locals** _(default: undefined)_ Boolean or String. When `true`, enables
+loading of local template context data and functions from files that match
+the following default pattern: `"<filename>.(js|json)"`. When a glob pattern
+string is given, the directory containing a given template will be searched
+using the pattern. Data and functions from all matched files are merged into
+the render context. Note that the token `<filename>` will be replaced with a
+given template's file name including extension. Use the `<filename_noext>` 
+token instead in a custom pattern to target the file name without extension.
 
-For example
+### Render with data example
 ```
 nunjucksRender({
   data: {css_path: 'http://company.com/css/'}
