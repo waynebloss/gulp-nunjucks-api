@@ -22,7 +22,7 @@ function configure(options) {
   configureGlobals(config, options);
   configureContext(config, options);
   configureFiles(config, options);
-  configureNunjucks(config);
+  configureNunjucks(config, options);
 
   return config;
 }
