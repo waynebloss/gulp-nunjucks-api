@@ -1,10 +1,8 @@
 # gulp-nunjucks-api
 
-> Render [Nunjucks](https://mozilla.github.io/nunjucks/) templates
-
-*Issues with the output should be reported on the Nunjucks 
-[issue tracker](https://github.com/mozilla/nunjucks/issues).*
-
+> Render [Nunjucks](https://mozilla.github.io/nunjucks/) templates with data, 
+custom filters, custom context functions and options for other Nunjucks API 
+features.
 
 ## Install
 
@@ -22,18 +20,15 @@ var nunjucksRender = require('gulp-nunjucks-api');
 
 gulp.task('default', function () {
   return gulp.src('src/templates/*.html')
-		.pipe(nunjucksRender({
+    .pipe(nunjucksRender({
 		  src: 'src/templates',
-          data: require('./data.json'),
-          globals: require('./global-custom-filters-and-context-functions.json')		  
+      data: require('./global-data.json'),
+      filters: require('./global-filters.js'),
+      functions: require('./global-functions.js')
 		}))
 		.pipe(gulp.dest('dist'));
 });
 ```
-
-*Note: To keep Nunjucks render from eating up all your ram, make sure to 
-specify the `src` path(s) option. This will also allow you to define your paths
-relatively.*
 
 ## Example with gulp data
 
@@ -52,7 +47,7 @@ gulp.task('default', function () {
 	return gulp.src('src/templates/*.html')
 	  .pipe(data(getDataForFile))
 		.pipe(nunjucksRender({
-      src: ['src/templates/']
+      src: 'src/templates/'
     }))
 		.pipe(gulp.dest('dist'));
 });
@@ -63,20 +58,30 @@ gulp.task('default', function () {
 
 ### nunjucks-render(options)
 
-Same options as [`nunjucks.configure()`](http://mozilla.github.io/nunjucks/api.html#configure):
+Same options as 
+[`nunjucks.configure()`](http://mozilla.github.io/nunjucks/api.html#configure):
 
-- *watch* _(default: false)_ reload templates when they are changed.
-- *express* an express app that nunjucks should install to.
-- *autoescape* _(default: false)_ controls if output with dangerous characters are escaped automatically.
-- *tags*: _(default: see nunjucks syntax)_ defines the syntax for nunjucks tags.
+- **watch** _(default: false)_ reload templates when they are changed.
+- **express** an express app that nunjucks should install to.
+- **autoescape** _(default: false)_ controls if output with dangerous 
+characters are escaped automatically.
+- **tags** _(default: see nunjucks syntax)_ defines the syntax for nunjucks 
+tags.
 
 With the following additional options:
 
-- *extension* _(default: ".html")_ String. File extension to output.
-- *src* _(default: undefined)_ String or Array. Source path(s) being configured.
-- *data* _(default: {})_ Ojbect. Context data available to all templates.
-- *globals* _(default: undefined)_ Object. Provides `filters` and `functions` 
-properties, which are are added to the nunjucks environment or context.
+- **extension** _(default: ".html")_ String. File extension to output.
+- **src** _(default: undefined)_ String or Array. Search path(s) for 
+`nunjucks.configure()`.
+- **data** _(default: {})_ Ojbect. Global data merged into the Nunjucks render 
+context.
+- **filters** _(default: {})_ Object. Global filter functions added to the 
+Nunjucks environment.
+- **functions** _(default: {})_ Object. Global functions merged into the 
+Nunjucks render context.
+- **globals** _(default: undefined)_ Object. A single object which provides 
+`data`, `filters` and `functions` objects instead of setting each of these
+options separately. Other global options are merged into this object.
 
 For example
 ```
@@ -96,8 +101,8 @@ Would render
 ```
 
 ### Watch mode
-Nunjucks' watch feature, which is normally enabled by default, is disabled by
-default in this plugin. Pass `watch: true` to enable it:
+Nunjucks' watch feature, which is normally enabled by default, is disabled by                                          
+default for gulp. Pass `watch: true` to enable it:
 
 ```
 nunjucksRender({
