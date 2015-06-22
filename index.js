@@ -46,10 +46,12 @@ function configureGlobals(config, options) {
   var g = {};
   var og = options.globals || {};
   g.data = lodash.merge({}, og.data, options.data);
+  g.extensions = lodash.merge({}, og.extensions, options.extensions);
   g.filters = lodash.merge({}, og.filters, options.filters);
   g.functions = lodash.merge({}, og.functions, options.functions);
   config.g = g;
   delete options.data;
+  delete options.extensions;
   delete options.filters;
   delete options.functions;
   delete options.globals;
@@ -57,7 +59,9 @@ function configureGlobals(config, options) {
 
 function configureNunjucks(config, options) {
   var env;
-  var filters = config.g.filters;
+  var g = config.g;
+  var filters = g.filters;
+  var extensions = g.extensions;
   
   // At this point, options should only contain fields which are relevant to 
   // the nunjucks.configure api.
@@ -72,6 +76,8 @@ function configureNunjucks(config, options) {
   env = config.env;
   for (name in filters)
     env.addFilter(name, filters[name]);
+  for (name in extensions)
+    env.addExtension(name, extensions[name]);
 }
 
 function configureVerbosity(config, options) {

@@ -75,13 +75,16 @@ With the following additional options:
 `nunjucks.configure()`.
 - **data** _(default: {})_ Ojbect. Global data merged into the Nunjucks render 
 context.
+- **extensions** _(default: {})_ Object. Global extensions added to the 
+Nunjucks environment.
 - **filters** _(default: {})_ Object. Global filter functions added to the 
 Nunjucks environment.
 - **functions** _(default: {})_ Object. Global functions merged into the 
 Nunjucks render context.
 - **globals** _(default: undefined)_ Object. A single object which provides 
-`data`, `filters` and `functions` objects instead of setting each of these
-options separately. Other global options are merged into this object.
+`data`, `extensions`, `filters` and `functions` objects instead of setting 
+each of these options separately. The separate global options are merged into 
+this base object.
 
 For example
 ```
