@@ -5,12 +5,12 @@ var lodash = require('lodash');
 var nunjucks = require('nunjucks');
 var through = require('through2');
 
-var DEFAULT_EXTENSION = '.html';
+var PLUGIN_NAME = 'gulp-nunjucks-api';
 
 function configure(options) {
   var config = {
     context: {},
-    extension: DEFAULT_EXTENSION,
+    extension: '.html',
     verbose: false
   };
   if (options === undefined || options === null)
@@ -18,7 +18,7 @@ function configure(options) {
   else
     options = lodash.cloneDeep(options);
   
-  configureVerbose(config, options);
+  configureVerbosity(config, options);
   configureGlobals(config, options);
   configureContext(config, options);
   configureFiles(config, options);
@@ -74,9 +74,18 @@ function configureNunjucks(config, options) {
     env.addFilter(name, filters[name]);
 }
 
-function configureVerbose(config, options) {
-  config.verbose = options.verbose || false;
+function configureVerbosity(config, options) {
+  config.verbose = options.verbose || config.verbose;
+  config.vlog = config.verbose ? log : returnGulpUtil;
   delete options.verbose;
+}
+
+function createError(message, opt) {
+  return new gutil.PluginError(PLUGIN_NAME, message, opt);
+}
+
+function log(message) {
+  return gutil.log.apply(gutil, arguments);
 }
 
 function plugin(options) {
@@ -94,15 +103,13 @@ function plugin(options) {
     if (file.data)
       lodash.assign(context, file.data);
     if (file.isStream()) {
-      this.emit('error', new gutil.PluginError('gulp-nunjucks-api', 'Streaming not supported'));
+      this.emit('error', createError('Streaming not supported'));
       return cb();
     }
-    if (config.verbose === true) {
-      console.log('gulp-nunjucks-api rendering file.path: ' + file.path);
-    }
+    config.vlog('Rendering nunjucks file.path:', file.path);
     env.render(file.path, context, function(err, result) {
       if (err) {
-        _this.emit('error', new gutil.PluginError('gulp-nunjucks-api', err));
+        _this.emit('error', createError(err));
       }
       file.contents = new Buffer(result);
       file.path = gutil.replaceExtension(file.path, config.extension);
@@ -114,3 +121,7 @@ function plugin(options) {
 }
 module.exports = plugin;
 plugin.nunjucks = nunjucks;
+
+function returnGulpUtil() {
+  return gutil;
+}
