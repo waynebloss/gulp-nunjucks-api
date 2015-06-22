@@ -123,4 +123,4 @@ which I am forking in order to update Nunjucks and do other stuff.
 
 [Sindre Sorhus](http://sindresorhus.com/) who wrote the original 
 [gulp-nunjucks](https://www.npmjs.org/package/gulp-nunjucks) for precompiling 
-Nunjucks templates. I updated his to render instead of precompile.
+Nunjucks templates.
