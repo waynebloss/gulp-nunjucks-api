@@ -91,6 +91,7 @@ Nunjucks render context.
 - **globals** _(default: undefined)_ Object. A single object which provides 
 `data`, `extensions`, `filters` and `functions` objects instead of setting 
 each of these options separately. The separate global options are merged into 
+this base object.
 - **locals** _(default: undefined)_ Boolean or String. When `true`, enables
 loading of local template context data and functions from files that match
 the following default pattern: `"<filename>.+(js|json)"`. When a glob pattern
