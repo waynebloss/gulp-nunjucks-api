@@ -93,7 +93,7 @@ Nunjucks render context.
 each of these options separately. The separate global options are merged into 
 - **locals** _(default: undefined)_ Boolean or String. When `true`, enables
 loading of local template context data and functions from files that match
-the following default pattern: `"<filename>.(js|json)"`. When a glob pattern
+the following default pattern: `"<filename>.+(js|json)"`. When a glob pattern
 string is given, the directory containing a given template will be searched
 using the pattern. Data and functions from all matched files are merged into
 the render context. Note that the token `<filename>` will be replaced with a

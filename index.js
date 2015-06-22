@@ -64,7 +64,7 @@ function configureGlobals(config, options) {
 
 function configureLocals(config, options) {
   if (options.locals === true)
-    config.locals = '<filename>.(js|json)';
+    config.locals = '<filename>.+(js|json)';
   else
     config.locals = options.locals;
   delete options.locals;
@@ -75,7 +75,7 @@ function configureNunjucks(config, options) {
   var g = config.g;
   var filters = g.filters;
   var extensions = g.extensions;
-  
+  var name;
   // At this point, options should only contain fields which are relevant to 
   // the nunjucks.configure api.
   
@@ -113,21 +113,25 @@ function log(message) {
 
 // #endregion
 
-function assignLocals(context, locals, file) {
+function assignLocals(context, config, file) {
   var searchpath = path.dirname(file.path);
   var pfile = path.parse(file.path);
-  var locals = String.prototype.replace.apply(locals, [
+  var locals = String.prototype.replace.apply(config.locals, [
     '<filename>', pfile.base]);
   locals = String.prototype.replace.apply(locals, [
     '<filename_noext>', pfile.name]);
-  var pattern = path.join(searchpath, locals);
+  var pattern = locals;
+  config.vlog('Searching for locals with pattern:', pattern, 'in:', searchpath);
   var options = {
-    cwd: searchpath
+    cwd: searchpath,
+    nodir: true
   };
   var found = glob.sync(pattern, options);
   var i, fullpath, data;
+  config.vlog('Found:', found.length, 'locals files.');
   for (i = 0; i < found.length; i++) {
-    fullpath = path.join(searchpath, foundpath);
+    fullpath = path.resolve(searchpath, found[i]);
+    config.vlog('Using locals file:', found[i], 'fullpath:', fullpath);
     data = require(fullpath);
     lodash.assign(context, data);
   }
@@ -152,7 +156,7 @@ function plugin(options) {
     if (file.data)
       lodash.assign(context, file.data);
     if (config.locals)
-      assignLocals(context, config.locals, file);
+      assignLocals(context, config, file);
     config.vlog('Rendering nunjucks file.path:', file.path);
     env.render(file.path, context, function (err, result) {
       if (err) {
