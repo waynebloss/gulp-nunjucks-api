@@ -16,7 +16,9 @@ function configure(options) {
   var config = {
     context: {},
     extension: '.html',
-    verbose: false
+    verbose: false,
+    src: 'src',
+    srcpath: path.resolve('src')
   };
   if (options === undefined || options === null)
     options = {};
@@ -51,8 +53,10 @@ function configureErrors(config, options) {
 function configureFiles(config, options) {
   if (options.extension)
     config.extension = options.extension;
-  if (options.src)
+  if (options.src) {
     config.src = options.src;
+    config.srcpath = path.resolve(config.src);
+  }
   delete options.extension;
   delete options.src;
 }
@@ -155,7 +159,8 @@ function assignLocals(context, config, file) {
   config.vlog('Searching for locals with pattern:', pattern, 'in:', searchpath);
   var options = {
     cwd: searchpath,
-    nodir: true
+    nodir: true,
+    root: config.srcpath
   };
   var found = glob.sync(pattern, options);
   var i, fullpath, result;
