@@ -81,7 +81,8 @@ With the following additional options:
 - **data** _(default: {})_ Ojbect. Global data merged into the Nunjucks render 
 context.
 - **errors** _(default: true)_ Boolean. Whether to emit errors to gulp or not.
-Set to `false` to let the gulp task continue on errors.
+Set to `false` to let the gulp task continue on errors. See also: the verbose
+option.
 - **extensions** _(default: {})_ Object. Global extensions added to the 
 Nunjucks environment. See 
 [Custom Tags](http://mozilla.github.io/nunjucks/api.html#custom-tags).
@@ -102,6 +103,8 @@ using the pattern. Data and functions from all matched files are merged into
 the render context. Note that the token `<filename>` will be replaced with a
 given template's file name including extension. Use the `<filename_noext>` 
 token instead in a custom pattern to target the file name without extension.
+- **verbose** _(default: false)_ Boolean. When `true`, detailed operational
+data is logged to the console.
 
 ### Render with data example
 ```
