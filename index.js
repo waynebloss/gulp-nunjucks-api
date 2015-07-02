@@ -7,6 +7,7 @@ var gutil = require('gulp-util');
 var lodash = require('lodash');
 var nunjucks = require('nunjucks');
 var path = require('path');
+var requireNew = require('require-new');
 var through = require('through2');
 
 // #region Configuration
@@ -128,6 +129,19 @@ function log(message) {
   return gutil.log.apply(gutil, arguments);
 }
 
+function requireFile(config, filepath, result) {
+  if (filepath === undefined || filepath === null)
+    return false;
+  try {
+    result.obj = requireNew(filepath);
+    return true;
+  }
+  catch (err) {
+    config.vlog('File not found: ' + filepath);
+  }
+  return false;
+}
+
 // #endregion
 
 function assignLocals(context, config, file) {
@@ -144,13 +158,14 @@ function assignLocals(context, config, file) {
     nodir: true
   };
   var found = glob.sync(pattern, options);
-  var i, fullpath, data;
+  var i, fullpath, result;
   config.vlog('Found:', found.length, 'locals files.');
   for (i = 0; i < found.length; i++) {
     fullpath = path.resolve(searchpath, found[i]);
     config.vlog('Using locals file:', found[i], 'fullpath:', fullpath);
-    data = require(fullpath);
-    lodash.assign(context, data);
+    result = {};
+    if (requireFile(config, fullpath, result))
+      lodash.assign(context, result.obj);
   }
 }
 
