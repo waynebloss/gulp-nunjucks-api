@@ -80,6 +80,8 @@ With the following additional options:
 `nunjucks.configure()`.
 - **data** _(default: {})_ Ojbect. Global data merged into the Nunjucks render 
 context.
+- **errors** _(default: true)_ Boolean. Whether to emit errors to gulp or not.
+Set to `false` to let the gulp task continue on errors.
 - **extensions** _(default: {})_ Object. Global extensions added to the 
 Nunjucks environment. See 
 [Custom Tags](http://mozilla.github.io/nunjucks/api.html#custom-tags).

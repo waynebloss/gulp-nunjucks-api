@@ -22,6 +22,7 @@ function configure(options) {
   else
     options = lodash.cloneDeep(options);
   
+  configureErrors(config, options);
   configureVerbosity(config, options);
   configureGlobals(config, options);
   configureLocals(config, options);
@@ -36,6 +37,14 @@ function configureContext(config, options) {
   var g = config.g;
   lodash.assign(config.context, g.data);
   lodash.assign(config.context, g.functions);
+}
+
+function configureErrors(config, options) {
+  if ('errors' in options)
+    config.errors = options.errors;
+  else
+    config.errors = true;
+  delete options.errors;
 }
 
 function configureFiles(config, options) {
@@ -107,6 +116,14 @@ function createError(message, opt) {
   return new gutil.PluginError(PLUGIN_NAME, message, opt);
 }
 
+function handleError(config, sender, err, cb, opt) {
+  config.vlog('Handling error: ' + err);
+  var pluginErr = createError(err, opt);
+  if (config.errors)
+    sender.emit('error', pluginErr);
+  return cb(pluginErr);
+}
+
 function log(message) {
   return gutil.log.apply(gutil, arguments);
 }
@@ -149,19 +166,16 @@ function plugin(options) {
       this.push(file);
       return cb();
     }
-    if (file.isStream()) {
-      this.emit('error', createError('Streaming not supported'));
-      return cb();
-    }
+    if (file.isStream())
+      return handleError(config, _this, 'Streaming not supported', cb);
     if (file.data)
       lodash.assign(context, file.data);
     if (config.locals)
       assignLocals(context, config, file);
     config.vlog('Rendering nunjucks file.path:', file.path);
     env.render(file.path, context, function (err, result) {
-      if (err) {
-        _this.emit('error', createError(err));
-      }
+      if (err)
+        return handleError(config, _this, err, cb);
       file.contents = new Buffer(result);
       file.path = gutil.replaceExtension(file.path, config.extension);
       _this.push(file);
