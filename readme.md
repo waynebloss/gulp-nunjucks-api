@@ -97,16 +97,15 @@ each of these options separately. The separate global options are merged into
 this base object.
 - **locals** _(default: undefined)_ Boolean or String. When `true`, enables
 loading of local template context data and functions from files that match
-the following default pattern: `"<filename>.+(js|json)"`. When a glob pattern
+the following default pattern: `"<filename>.+(js|json)"`. When a 
+[glob pattern](https://github.com/isaacs/node-glob#glob-primer)
 string is given, the directory containing a given template will be searched
 using the pattern. Data and functions from all matched files are merged into
 the render context. Note that the token `<filename>` will be replaced with a
 given template's file name including extension. Use the `<filename_noext>` 
 token instead in a custom pattern to target the file name without extension.
 When including a path, the root `/` can be used to refer to the configured 
-**src** path. 
-See [Glob Primer](https://github.com/isaacs/node-glob#glob-primer) for more
-custom path rules.
+**src** path.
 - **verbose** _(default: false)_ Boolean. When `true`, detailed operational
 data is logged to the console.
 
