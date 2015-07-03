@@ -104,8 +104,6 @@ using the pattern. Data and functions from all matched files are merged into
 the render context. Note that the token `<filename>` will be replaced with a
 given template's file name including extension. Use the `<filename_noext>` 
 token instead in a custom pattern to target the file name without extension.
-When including a path, the root `/` can be used to refer to the configured 
-**src** path.
 - **verbose** _(default: false)_ Boolean. When `true`, detailed operational
 data is logged to the console.
 
