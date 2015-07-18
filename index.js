@@ -192,7 +192,8 @@ function plugin(options) {
       if (err)
         return handleError(config, _this, err, cb);
       file.contents = new Buffer(result);
-      file.path = gutil.replaceExtension(file.path, config.extension);
+      if (config.extension !== 'inherit')
+        file.path = gutil.replaceExtension(file.path, config.extension);
       _this.push(file);
       cb();
     });
