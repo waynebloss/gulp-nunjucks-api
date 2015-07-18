@@ -75,7 +75,8 @@ tags. See
 
 With the following additional options:
 
-- **extension** _(default: ".html")_ String. File extension to output.
+- **extension** _(default: ".html")_ String. File extension to output. Pass 'inherit'
+to use the extension of the input file.
 - **src** _(default: undefined)_ String or Array. Search path(s) for 
 `nunjucks.configure()`.
 - **data** _(default: {})_ Ojbect. Global data merged into the Nunjucks render 
