@@ -16,7 +16,9 @@ function configure(options) {
   var config = {
     context: {},
     extension: '.html',
-    verbose: false
+    verbose: false,
+    renderString: false,
+    piping: true
   };
   if (options === undefined || options === null)
     options = {};
@@ -30,6 +32,7 @@ function configure(options) {
   configureContext(config, options);
   configureFiles(config, options);
   configureNunjucks(config, options);
+  configurePluginOptions(config, options);
   
   return config;
 }
@@ -64,6 +67,7 @@ function configureGlobals(config, options) {
   g.extensions = lodash.merge({}, og.extensions, options.extensions);
   g.filters = lodash.merge({}, og.filters, options.filters);
   g.functions = lodash.merge({}, og.functions, options.functions);
+
   config.g = g;
   delete options.data;
   delete options.extensions;
@@ -107,6 +111,19 @@ function configureVerbosity(config, options) {
   config.verbose = options.verbose || config.verbose;
   config.vlog = config.verbose ? log : returnGulpUtil;
   delete options.verbose;
+}
+
+function configurePluginOptions(config, options) {
+  config.renderString = options.renderString || config.renderString;
+  config.piping = config.piping;
+
+  if (typeof options.piping !== 'undefined') {
+    config.piping = options.piping;
+  } else {
+    config.piping = config.piping;
+  }
+  delete options.renderString;
+  delete options.piping;
 }
 
 // #endregion
@@ -188,16 +205,47 @@ function plugin(options) {
     if (config.locals)
       assignLocals(context, config, file);
     config.vlog('Rendering nunjucks file.path:', file.path);
-    env.render(file.path, context, function (err, result) {
-      if (err)
-        return handleError(config, _this, err, cb);
-      file.contents = new Buffer(result);
-      file.path = gutil.replaceExtension(file.path, config.extension);
-      _this.push(file);
-      cb();
-    });
+    
+    if (config.renderString) {
+      env.renderString(file.contents.toString(), context, function(err, result) {
+        if (err)
+          return handleError(config, _this, err, cb);
+        file.contents = new Buffer(result);
+        if (config.extension !== 'inherit')
+          file.path = gutil.replaceExtension(file.path, config.extension);
+        _this.push(file);
+        cb();
+      });
+    } else {
+      env.render(file.path, context, function (err, result) {
+        if (err)
+          return handleError(config, _this, err, cb);
+        file.contents = new Buffer(result);
+        if (config.extension !== 'inherit')
+          file.path = gutil.replaceExtension(file.path, config.extension);
+        _this.push(file);
+        cb();
+      });
+    }
   }
-  return through.obj(render);
+
+  if (config.piping) {
+    return through.obj(render);
+  } else {
+    // For cases where we don't want to use this in with gulp
+    // pipes and instead have a way to render nunjucks-style
+    // strings with all the options set.
+    return function(contents, data, cb) {
+      var context = lodash.cloneDeep(config.context);
+      var env = config.env;
+
+      if (data) {
+        lodash.assign(context, data);
+      };
+
+      env.renderString(contents, context, cb);
+    }
+  }
 }
 module.exports = plugin;
 plugin.nunjucks = nunjucks;
