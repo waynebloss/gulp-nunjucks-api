@@ -1,6 +1,6 @@
 {
   "name": "gulp-nunjucks-api",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "description": "Render Nunjucks templates with data, custom filters, custom context functions and options for other Nunjucks API features.",
   "license": "MIT",
   "repository": {
@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "mocha": "^2.1.0",
+    "nunjucks": "^2.1.0",
     "should": "^5.0.1"
   },
   "readmeFilename": "readme.md",
