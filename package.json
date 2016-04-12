@@ -28,16 +28,16 @@
     "javascript"
   ],
   "dependencies": {
-    "glob": "^5.0.10",
-    "gulp-util": "~2.2.0",
-    "lodash": "^3.9.3",
-    "nunjucks": "^2.1.0",
-    "require-new": "^1.0.2",
-    "through2": "~0.4.0"
+    "glob": "^7.0.3",
+    "gulp-util": "^3.0.7",
+    "lodash": "^4.10.0",
+    "nunjucks": "^2.4.1",
+    "require-new": "^1.1.0",
+    "through2": "^2.0.1"
   },
   "devDependencies": {
-    "mocha": "^2.1.0",
-    "should": "^5.0.1"
+    "mocha": "^2.4.5",
+    "should": "^8.3.0"
   },
   "readmeFilename": "readme.md",
   "bugs": {
