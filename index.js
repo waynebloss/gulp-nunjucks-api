@@ -4,7 +4,9 @@ var PLUGIN_NAME = 'gulp-nunjucks-api';
 
 var glob = require('glob');
 var gutil = require('gulp-util');
-var lodash = require('lodash');
+var assign = require('lodash/assign');
+var cloneDeep = require('lodash/cloneDeep');
+var merge = require('lodash/merge');
 var nunjucks = require('nunjucks');
 var path = require('path');
 var requireNew = require('require-new');
@@ -12,7 +14,9 @@ var through = require('through2');
 
 // #region Configuration
 
-function configure(options) {
+function
+configure(options) {
+
   var config = {
     context: {},
     extension: '.html',
@@ -23,8 +27,8 @@ function configure(options) {
   if (options === undefined || options === null)
     options = {};
   else
-    options = lodash.cloneDeep(options);
-  
+    options = cloneDeep(options);
+
   configureErrors(config, options);
   configureVerbosity(config, options);
   configureGlobals(config, options);
@@ -33,14 +37,13 @@ function configure(options) {
   configureFiles(config, options);
   configureNunjucks(config, options);
   configurePluginOptions(config, options);
-  
+
   return config;
 }
 
 function configureContext(config, options) {
   var g = config.g;
-  lodash.assign(config.context, g.data);
-  lodash.assign(config.context, g.functions);
+  assign(config.context, g.functions);
 }
 
 function configureErrors(config, options) {
@@ -63,13 +66,11 @@ function configureFiles(config, options) {
 function configureGlobals(config, options) {
   var g = {};
   var og = options.globals || {};
-  g.data = lodash.merge({}, og.data, options.data);
-  g.extensions = lodash.merge({}, og.extensions, options.extensions);
-  g.filters = lodash.merge({}, og.filters, options.filters);
-  g.functions = lodash.merge({}, og.functions, options.functions);
+  g.extensions = merge({}, og.extensions, options.extensions);
+  g.filters = merge({}, og.filters, options.filters);
+  g.functions = merge({}, og.functions, options.functions);
 
   config.g = g;
-  delete options.data;
   delete options.extensions;
   delete options.filters;
   delete options.functions;
@@ -90,21 +91,29 @@ function configureNunjucks(config, options) {
   var filters = g.filters;
   var extensions = g.extensions;
   var name;
-  // At this point, options should only contain fields which are relevant to 
+  // At this point, options should only contain fields which are relevant to
   // the nunjucks.configure api.
-  
-  // Disable watch by default for the gulp system, since gulp will not exit 
+
+
+  // Disable watch by default for the gulp system, since gulp will not exit
   // while files are being watched.
   if (options.watch === undefined)
     options.watch = false;
-  
+
   config.env = nunjucks.configure(config.src, options);
-  
+  for (var property in options.data) {
+    if (options.data.hasOwnProperty(property)) {
+      config.env.addGlobal(property, options.data[property]);
+    }
+  }
+
+
   env = config.env;
   for (name in filters)
     env.addFilter(name, filters[name]);
   for (name in extensions)
     env.addExtension(name, extensions[name]);
+
 }
 
 function configureVerbosity(config, options) {
@@ -182,18 +191,19 @@ function assignLocals(context, config, file) {
     config.vlog('Using locals file:', found[i], 'fullpath:', fullpath);
     result = {};
     if (requireFile(config, fullpath, result))
-      lodash.assign(context, result.obj);
+      assign(context, result.obj);
   }
 }
 
 function plugin(options) {
   var config = configure(options);
-  
+
+
   function render(file, enc, cb) {
-    var context = lodash.cloneDeep(config.context);
+    var context = cloneDeep(config.context);
     var env = config.env;
     var _this = this;
-    
+
     if (file.isNull()) {
       this.push(file);
       return cb();
@@ -201,11 +211,11 @@ function plugin(options) {
     if (file.isStream())
       return handleError(config, _this, 'Streaming not supported', cb);
     if (file.data)
-      lodash.assign(context, file.data);
+      assign(context, file.data);
     if (config.locals)
       assignLocals(context, config, file);
     config.vlog('Rendering nunjucks file.path:', file.path);
-    
+
     if (config.renderString) {
       env.renderString(file.contents.toString(), context, function(err, result) {
         if (err)
@@ -236,11 +246,11 @@ function plugin(options) {
     // pipes and instead have a way to render nunjucks-style
     // strings with all the options set.
     return function(contents, data, cb) {
-      var context = lodash.cloneDeep(config.context);
+      var context = cloneDeep(config.context);
       var env = config.env;
 
       if (data) {
-        lodash.assign(context, data);
+        assign(context, data);
       };
 
       env.renderString(contents, context, cb);
