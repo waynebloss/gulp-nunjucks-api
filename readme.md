@@ -15,7 +15,7 @@ features.
 Install with [npm](https://npmjs.org/package/gulp-nunjucks-api)
 
 ```
-npm install --save-dev git+https://github.com/DrNixx/gulp-nunjucks-api.git
+npm install --save-dev gulp-nunjucks-api
 ```
 
 ## Example
