@@ -3,14 +3,16 @@
 var PLUGIN_NAME = 'gulp-nunjucks-api';
 
 var glob = require('glob');
-var gutil = require('gulp-util');
 var assign = require('lodash/assign');
 var cloneDeep = require('lodash/cloneDeep');
 var merge = require('lodash/merge');
 var nunjucks = require('nunjucks');
 var path = require('path');
+var pluginError = require('plugin-error');
 var requireNew = require('require-new');
 var through = require('through2');
+var fancyLog = require('fancy-log');
+var replaceExt = require('replace-ext');
 
 // #region Configuration
 
@@ -20,7 +22,6 @@ configure(options) {
   var config = {
     context: {},
     extension: '.html',
-    verbose: false,
     renderString: false,
     piping: true
   };
@@ -30,7 +31,6 @@ configure(options) {
     options = cloneDeep(options);
 
   configureErrors(config, options);
-  configureVerbosity(config, options);
   configureGlobals(config, options);
   configureLocals(config, options);
   configureContext(config, options);
@@ -116,12 +116,6 @@ function configureNunjucks(config, options) {
 
 }
 
-function configureVerbosity(config, options) {
-  config.verbose = options.verbose || config.verbose;
-  config.vlog = config.verbose ? log : returnGulpUtil;
-  delete options.verbose;
-}
-
 function configurePluginOptions(config, options) {
   config.renderString = options.renderString || config.renderString;
   config.piping = config.piping;
@@ -140,11 +134,11 @@ function configurePluginOptions(config, options) {
 // #region Helpers
 
 function createError(message, opt) {
-  return new gutil.PluginError(PLUGIN_NAME, message, opt);
+  return new pluginError(PLUGIN_NAME, message, opt);
 }
 
 function handleError(config, sender, err, cb, opt) {
-  config.vlog('Handling error: ' + err);
+  fancyLog.info('Handling error: ' + err);
   var pluginErr = createError(err, opt);
   if (config.errors)
     sender.emit('error', pluginErr);
@@ -152,7 +146,7 @@ function handleError(config, sender, err, cb, opt) {
 }
 
 function log(message) {
-  return gutil.log.apply(gutil, arguments);
+  fancyLog(message);
 }
 
 function requireFile(config, filepath, result) {
@@ -163,7 +157,7 @@ function requireFile(config, filepath, result) {
     return true;
   }
   catch (err) {
-    config.vlog('File not found: ' + filepath);
+    fancyLog.error('File not found: ' + filepath);
   }
   return false;
 }
@@ -178,17 +172,17 @@ function assignLocals(context, config, file) {
   locals = String.prototype.replace.apply(locals, [
     '<filename_noext>', pfile.name]);
   var pattern = locals;
-  config.vlog('Searching for locals with pattern:', pattern, 'in:', searchpath);
+  fancyLog.info('Searching for locals with pattern:', pattern, 'in:', searchpath);
   var options = {
     cwd: searchpath,
     nodir: true
   };
   var found = glob.sync(pattern, options);
   var i, fullpath, result;
-  config.vlog('Found:', found.length, 'locals files.');
+  fancyLog.info('Found:', found.length, 'locals files.');
   for (i = 0; i < found.length; i++) {
     fullpath = path.resolve(searchpath, found[i]);
-    config.vlog('Using locals file:', found[i], 'fullpath:', fullpath);
+    fancyLog.info('Using locals file:', found[i], 'fullpath:', fullpath);
     result = {};
     if (requireFile(config, fullpath, result))
       assign(context, result.obj);
@@ -214,7 +208,7 @@ function plugin(options) {
       assign(context, file.data);
     if (config.locals)
       assignLocals(context, config, file);
-    config.vlog('Rendering nunjucks file.path:', file.path);
+    fancyLog.info('Rendering nunjucks file.path:', file.path);
 
     if (config.renderString) {
       env.renderString(file.contents.toString(), context, function(err, result) {
@@ -222,7 +216,7 @@ function plugin(options) {
           return handleError(config, _this, err, cb);
         file.contents = new Buffer(result);
         if (config.extension !== 'inherit')
-          file.path = gutil.replaceExtension(file.path, config.extension);
+          file.path = replaceExt(file.path, config.extension);
         _this.push(file);
         cb();
       });
@@ -232,7 +226,7 @@ function plugin(options) {
           return handleError(config, _this, err, cb);
         file.contents = new Buffer(result);
         if (config.extension !== 'inherit')
-          file.path = gutil.replaceExtension(file.path, config.extension);
+          file.path = replaceExt(file.path, config.extension);
         _this.push(file);
         cb();
       });
@@ -259,7 +253,3 @@ function plugin(options) {
 }
 module.exports = plugin;
 plugin.nunjucks = nunjucks;
-
-function returnGulpUtil() {
-  return gutil;
-}
