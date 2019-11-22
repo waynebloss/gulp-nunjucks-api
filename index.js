@@ -22,6 +22,7 @@ configure(options) {
   var config = {
     context: {},
     extension: '.html',
+    verbose: false,
     renderString: false,
     piping: true
   };
@@ -31,6 +32,7 @@ configure(options) {
     options = cloneDeep(options);
 
   configureErrors(config, options);
+  configureVerbosity(config, options);
   configureGlobals(config, options);
   configureLocals(config, options);
   configureContext(config, options);
@@ -116,6 +118,11 @@ function configureNunjucks(config, options) {
 
 }
 
+function configureVerbosity(config, options) {
+  config.verbose = options.verbose || config.verbose;
+  delete options.verbose;
+}
+
 function configurePluginOptions(config, options) {
   config.renderString = options.renderString || config.renderString;
   config.piping = config.piping;
@@ -138,15 +145,16 @@ function createError(message, opt) {
 }
 
 function handleError(config, sender, err, cb, opt) {
-  fancyLog.info('Handling error: ' + err);
+  if (config.verbose) {
+    fancyLog.info('Handling error: ' + err);
+  }
+  
   var pluginErr = createError(err, opt);
-  if (config.errors)
+  if (config.errors) {
     sender.emit('error', pluginErr);
+  }
+    
   return cb(pluginErr);
-}
-
-function log(message) {
-  fancyLog(message);
 }
 
 function requireFile(config, filepath, result) {
@@ -172,17 +180,26 @@ function assignLocals(context, config, file) {
   locals = String.prototype.replace.apply(locals, [
     '<filename_noext>', pfile.name]);
   var pattern = locals;
-  fancyLog.info('Searching for locals with pattern:', pattern, 'in:', searchpath);
+  if (config.verbose) {
+    fancyLog.info('Searching for locals with pattern:', pattern, 'in:', searchpath);
+  }
+  
   var options = {
     cwd: searchpath,
     nodir: true
   };
   var found = glob.sync(pattern, options);
   var i, fullpath, result;
-  fancyLog.info('Found:', found.length, 'locals files.');
+  if (config.verbose) {
+    fancyLog.info('Found:', found.length, 'locals files.');
+  }
+
   for (i = 0; i < found.length; i++) {
     fullpath = path.resolve(searchpath, found[i]);
-    fancyLog.info('Using locals file:', found[i], 'fullpath:', fullpath);
+    if (config.verbose) {
+      fancyLog.info('Using locals file:', found[i], 'fullpath:', fullpath);
+    }
+
     result = {};
     if (requireFile(config, fullpath, result))
       assign(context, result.obj);
@@ -202,31 +219,48 @@ function plugin(options) {
       this.push(file);
       return cb();
     }
-    if (file.isStream())
+
+    if (file.isStream()) {
       return handleError(config, _this, 'Streaming not supported', cb);
-    if (file.data)
+    }
+
+    if (file.data) {
       assign(context, file.data);
-    if (config.locals)
+    }
+    
+    if (config.locals) {
       assignLocals(context, config, file);
-    fancyLog.info('Rendering nunjucks file.path:', file.path);
+    }
+      
+    if (config.verbose) {
+      fancyLog.info('Rendering nunjucks file.path:', file.path);
+    }
 
     if (config.renderString) {
       env.renderString(file.contents.toString(), context, function(err, result) {
-        if (err)
+        if (err) {
           return handleError(config, _this, err, cb);
+        }
+
         file.contents = new Buffer(result);
-        if (config.extension !== 'inherit')
+        if (config.extension !== 'inherit'){
           file.path = replaceExt(file.path, config.extension);
+        }
+
         _this.push(file);
         cb();
       });
     } else {
       env.render(file.path, context, function (err, result) {
-        if (err)
+        if (err){
           return handleError(config, _this, err, cb);
+        }
+
         file.contents = new Buffer(result);
-        if (config.extension !== 'inherit')
+        if (config.extension !== 'inherit') {
           file.path = replaceExt(file.path, config.extension);
+        }
+        
         _this.push(file);
         cb();
       });

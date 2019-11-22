@@ -1,11 +1,11 @@
 {
   "name": "gulp-nunjucks-api",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Render Nunjucks templates with data, custom filters, custom context functions and options for other Nunjucks API features.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/DrNixx/gulp-nunjucks-api"
+    "url": "git://github.com/devoptix/gulp-nunjucks-api"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -44,7 +44,7 @@
   },
   "readmeFilename": "readme.md",
   "bugs": {
-    "url": "https://github.com/DrNixx/gulp-nunjucks-api/issues"
+    "url": "https://github.com/devoptix/gulp-nunjucks-api/issues"
   },
-  "homepage": "https://github.com/DrNixx/gulp-nunjucks-api"
+  "homepage": "https://github.com/devoptix/gulp-nunjucks-api"
 }
