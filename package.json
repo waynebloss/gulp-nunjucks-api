@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/devoptix/gulp-nunjucks-api"
+    "url": "git://github.com/DrNixx/gulp-nunjucks-api"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -44,7 +44,7 @@
   },
   "readmeFilename": "readme.md",
   "bugs": {
-    "url": "https://github.com/devoptix/gulp-nunjucks-api/issues"
+    "url": "https://github.com/DrNixx/gulp-nunjucks-api/issues"
   },
-  "homepage": "https://github.com/devoptix/gulp-nunjucks-api"
+  "homepage": "https://github.com/DrNixx/gulp-nunjucks-api"
 }
