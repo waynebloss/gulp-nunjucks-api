@@ -6,6 +6,8 @@
 
 # gulp-nunjucks-api
 
+[![npm version][npm-badge]][npm] [![npm downloads][npd-badge]][npm] [![dependencies Status][dps-badge]][dps]
+
 > Render [Nunjucks](https://mozilla.github.io/nunjucks/) templates with data, 
 custom filters, custom context functions and options for other Nunjucks API 
 features.
@@ -155,3 +157,9 @@ which I am forking in order to update Nunjucks and do other stuff.
 [Sindre Sorhus](http://sindresorhus.com/) who wrote the original 
 [gulp-nunjucks](https://www.npmjs.org/package/gulp-nunjucks) for precompiling 
 Nunjucks templates.
+
+[npm-badge]: https://img.shields.io/npm/v/gulp-nunjucks-api?style=flat
+[npd-badge]: https://img.shields.io/npm/dm/gulp-nunjucks-api.svg?style=flat-square
+[dps-badge]: https://david-dm.org/waynebloss/gulp-nunjucks-api/status.svg
+[dps]: https://david-dm.org/waynebloss/gulp-nunjucks-api
+[npm]: https://www.npmjs.com/package/gulp-nunjucks-api
